@@ -1,21 +1,34 @@
 <template>
   <div class="hello">
     <h1>{{ titulo }}</h1>
-    <div id="div-compra">
-      <table id="tbla-compra">
-        <thead>
-          <th>SKU</th>
-          <th>Name</th>
-          <th>Quantity</th>
-          <th>Price</th>
-        </thead>
-        <tbody>
-          <tr v-for>
+    <hr>
+    <b-row class="mt-5">
+      <b-col md="12" lg="6" class="div-addArticle">
+          <h3 class="pt-2">Add a new article</h3>
+      </b-col>
 
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+      <b-col md="12" lg="6" class="div-purchase">
+        <h3 class="pt-2">Purchase</h3>
+        <b-row>
+          <b-col>
+            <b-table responsive :items="items" :fields="fieldsItem">
+              <template v-slot:cell(index)="data">
+                {{data.index+1}}
+              </template>
+              <template v-slot:cell(actions)="data">
+                <b-icon-trash class="i-del" @click="deleteItem(data.item.index)"></b-icon-trash>
+              </template>
+            </b-table>
+          </b-col>
+        </b-row>
+        <b-row align-v="stretch" >
+          <b-col align-self="stretch">
+            <b-button size="lg" variant="success"><b-icon-cart></b-icon-cart> Buy!</b-button>
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -25,9 +38,10 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      titulo: 'Articulos para comprar',
+      titulo: 'Articles',
       articles: [],
-      items: []
+      items: [],
+      fieldsItem: ['index', 'sku', 'name', 'quantity', 'price', 'actions']
     }
   },
   methods: {
@@ -44,6 +58,27 @@ export default {
         this.items = this.articles.order.items
         })
 
+    },
+    deleteItem(index){
+      this.$swal.fire({
+        title: '¿Are you sure?',
+        text: "¿Do you want to delete this article?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            //Send request to server
+            if(result.value){
+                this.items.splice(index, 1)
+                swal.fire(
+                'Deleted!',
+                'this article Has been deleted.',
+                'success'
+                )
+        }
+    })
     }
   },
   mounted(){
@@ -67,5 +102,18 @@ li {
 }
 a {
   color: #42b983;
+}
+.i-del{
+  color: #42b983;
+}
+.div-addArticle{
+  width: 100%;
+  min-height: 35em;
+  background: #e0e0e0;
+}
+.div-purchase{
+  width: 100%;
+  min-height: 35em;
+  background: #f1eeee;
 }
 </style>
