@@ -1,6 +1,9 @@
 <template>
   <div class="hello">
-    <h1>{{ titulo }}</h1>
+    <b-row class="header">
+    </b-row>
+    <h1>Take a look to your purchase</h1>
+    <h6>Articles of purchase number: {{ purchaseNumber }}</h6>
     <hr>
     <b-row class="mt-5">
       <b-col md="12" lg="6" class="div-addArticle">
@@ -67,14 +70,14 @@
                 {{data.index+1}}
               </template>
               <template v-slot:cell(actions)="data">
-                <b-icon-trash class="i-del" @click="deleteItem(data.item.index)"></b-icon-trash>
+                <b-icon-trash class="i-del" @click="deleteItem(data.index)"></b-icon-trash>
               </template>
             </b-table>
           </b-col>
         </b-row>
         <b-row align-v="stretch" >
           <b-col align-self="stretch">
-            <b-button size="lg" variant="success"><b-icon-cart></b-icon-cart> Buy!</b-button>
+            <b-button size="lg" variant="success" @click="buy()"><b-icon-cart></b-icon-cart> Buy!</b-button>
           </b-col>
         </b-row>
       </b-col>
@@ -88,9 +91,8 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      titulo: 'Articles',
       articles: [],
-      purchasenumber: '',
+      purchaseNumber: '',
       items: [],
       fieldsItem: ['index', 'sku', 'name', 'quantity', 'price', 'actions'],
       form:{
@@ -112,7 +114,8 @@ export default {
                 config)
       .then(({data})=>{
         this.articles = data
-        this.items = this.articles.order.items
+        this.items = data.order.items
+        this.purchaseNumber =  data.order.number
         })
 
     },
@@ -147,7 +150,7 @@ export default {
     },
     addArticle(){
       let {sku, name, quantity, price} = this.form
-      if(sku.length < 3 || name.length < 6 || quantity *1 <= 0 || price *1 <= 0 ){
+      if(sku.length < 3 || name.length < 5 || quantity *1 <= 0 || price *1 <= 0 ){
         this.$swal.fire(
           `Your article couldn't be added`,
           `Verify all the required fields`,
@@ -160,7 +163,29 @@ export default {
           `continue with the purchase`,
           'success'
         )
+        this.resetForm();
       }
+    },
+    buy(){
+      this.$swal.fire({
+          title: '¿Are you sure?',
+          text: "¿Do you want buy this ?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes!'
+          }).then((result) => {
+              //Send request to server
+              if(result.value){
+                  Fire.$emit('AfterCreate');
+                  this.$swal.fire(
+                  'Thank you!',
+                  `your purchase has been successful`,
+                  'success'
+                  )
+          }
+      })
     }
   },
   computed: {
@@ -179,6 +204,10 @@ export default {
     },
   mounted(){
     this.getArticles();
+    Fire.$on('AfterCreate', () => {
+        this.getArticles();
+        this.resetForm();
+    })
   }
 }
 </script>
@@ -211,5 +240,12 @@ a {
   width: 100%;
   min-height: 35em;
   background: #f1eeee;
+}
+.header{
+  width: 100%;
+  height: 3em;
+  background: #42b983;
+  padding: 0;
+  margin: 0 0 1em 0;
 }
 </style>

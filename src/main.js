@@ -18,6 +18,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.use(axios)
 Vue.config.productionTip = false
 
+window.Fire = new Vue();
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -25,3 +27,4 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+
