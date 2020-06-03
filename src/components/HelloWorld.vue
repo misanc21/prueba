@@ -5,6 +5,56 @@
     <b-row class="mt-5">
       <b-col md="12" lg="6" class="div-addArticle">
           <h3 class="pt-2">Add a new article</h3>
+          <b-row>
+            <b-col>
+              <b-form @submit="addArticle()" @reset="resetForm()" class="p-2">
+                <b-form-group id="input-group-1" label="SKU" label-for="lbl-sku">
+                  <b-form-input id="ipt-sku" v-model="form.sku" type="text"  placeholder="SKU" :state="validationSku"></b-form-input>
+                  <b-form-invalid-feedback :state="validationSku">
+                    you need to fill this field (At least 3 characters)
+                  </b-form-invalid-feedback>
+                  <b-form-valid-feedback :state="validationSku">
+                    Looks Good.
+                  </b-form-valid-feedback>
+                </b-form-group>
+                <b-form-group id="input-group-2" label="Name" label-for="lbl-name" description="Add the name">
+                  <b-form-input id="ipt-name" v-model="form.name" type="text"  placeholder="Name" :state="validationName"></b-form-input>
+                  <b-form-invalid-feedback :state="validationName">
+                    you need to fill this field (At least 5 characters)
+                  </b-form-invalid-feedback>
+                  <b-form-valid-feedback :state="validationName">
+                    Good Name :).
+                  </b-form-valid-feedback>
+                </b-form-group>
+                <b-row>
+                  <b-col>
+                    <b-form-group id="input-group-3" label="Quantity" label-for="lbl-quantity" description="Add the quantity">
+                      <b-form-input id="ipt-quantity" v-model="form.quantity" type="number"  placeholder="quantity" :state="validationNumbers"></b-form-input>
+                      <b-form-invalid-feedback :state="validationNumbers">
+                        you need to fill this field (more than zero)
+                      </b-form-invalid-feedback>
+                      <b-form-valid-feedback :state="validationNumbers">
+                        Looks good.
+                      </b-form-valid-feedback>
+                    </b-form-group>
+                  </b-col>
+                  <b-col>
+                    <b-form-group id="input-group-4" label="price" label-for="lbl-price" description="Add the price">
+                      <b-form-input id="ipt-price" v-model="form.price" type="number"  placeholder="quantity" :state="validationPrice"></b-form-input>
+                      <b-form-invalid-feedback :state="validationPrice">
+                        you need to fill this field (more than zero)
+                      </b-form-invalid-feedback>
+                      <b-form-valid-feedback :state="validationPrice">
+                        Looks good.
+                      </b-form-valid-feedback>
+                    </b-form-group>
+                  </b-col>
+                </b-row>
+                <b-button type="reset" variant="danger">Reset</b-button>
+                <b-button type="submit" variant="primary">Add to cart</b-button>
+              </b-form>
+            </b-col>
+          </b-row>
       </b-col>
 
 
@@ -40,8 +90,15 @@ export default {
     return {
       titulo: 'Articles',
       articles: [],
+      purchasenumber: '',
       items: [],
-      fieldsItem: ['index', 'sku', 'name', 'quantity', 'price', 'actions']
+      fieldsItem: ['index', 'sku', 'name', 'quantity', 'price', 'actions'],
+      form:{
+        sku: '',
+        name: '',
+        quantity: 0,
+        price: 0
+      }
     }
   },
   methods: {
@@ -61,26 +118,65 @@ export default {
     },
     deleteItem(index){
       this.$swal.fire({
-        title: '¿Are you sure?',
-        text: "¿Do you want to delete this article?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            //Send request to server
-            if(result.value){
-                this.items.splice(index, 1)
-                swal.fire(
-                'Deleted!',
-                'this article Has been deleted.',
-                'success'
-                )
-        }
-    })
+          title: '¿Are you sure?',
+          text: "¿Do you want to delete this article?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+              //Send request to server
+              if(result.value){
+                  this.items.splice(index, 1)
+                  this.$swal.fire(
+                  'Deleted!',
+                  'this article Has been deleted.',
+                  'success'
+                  )
+          }
+      })
+    },
+    resetForm(){
+      this.form ={
+        sku: '',
+        name: '',
+        quantity: 0,
+        price: 0
+      }
+    },
+    addArticle(){
+      let {sku, name, quantity, price} = this.form
+      if(sku.length < 3 || name.length < 6 || quantity *1 <= 0 || price *1 <= 0 ){
+        this.$swal.fire(
+          `Your article couldn't be added`,
+          `Verify all the required fields`,
+          'error'
+        )
+      }else{
+        this.items.push(this.form)
+        this.$swal.fire(
+          `Your article has been added`,
+          `continue with the purchase`,
+          'success'
+        )
+      }
     }
   },
+  computed: {
+      validationSku() {
+        return this.form.sku.length >= 3
+      },
+      validationName() {
+        return this.form.name.length >= 5
+      },
+      validationNumbers() {
+        return this.form.quantity.length > 0 && this.form.quantity > 0
+      },
+      validationPrice() {
+        return this.form.price.length > 0 && this.form.price > 0
+      }
+    },
   mounted(){
     this.getArticles();
   }
